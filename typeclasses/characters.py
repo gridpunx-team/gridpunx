@@ -31,4 +31,16 @@ class Character(DefaultCharacter):
 
     """
 
-    pass
+    def at_object_creation(self):
+        """
+        Set persistent attributes when character is created. 
+        Most attributes will actually be set during a separate 
+        character creation process, but every player's character
+        will be a human with 128 hitpoints.
+        """
+        self.db.is_human = True
+        self.db.hitpoints = 128
+
+    def get_hitpoints(self):
+        # Access method to return hitpoints value
+        return self.db.hitpoints
