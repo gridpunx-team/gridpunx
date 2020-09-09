@@ -13,6 +13,7 @@ just overloads its hooks to have it perform its function.
 """
 
 from evennia import DefaultScript
+import random
 
 
 class Script(DefaultScript):
@@ -90,3 +91,47 @@ class Script(DefaultScript):
     """
 
     pass
+
+class HarshClimate(Script): 
+    """
+    This script is based on the Weather script from Evennia's documentation 
+    (/path/to/your/evennia/docs/source/Scripts.md) and modified to harm the 
+    player at regular intervals. Meant to be attached to a RealOutside room to 
+    establish a setting with a harmful climate. 
+    """
+    
+    def at_script_creation(self):
+        self.key = "harsh_climate"
+        self.desc = "Harms an unprotected player at regular intervals."
+        self.interval = 60 * 2  # every 2 minutes
+        self.persistent = True  # will survive reload
+
+    def at_repeat(self):
+        "called every self.interval seconds."        
+        rand = random.random()
+        if rand < 0.5:
+            climate_damage = 2
+            climate_message = "Foul air of the concrete jungle lingers around you."
+        elif rand < 0.8:
+            climate_damage = 4
+            climate_message = "The already dense smog thickens some more."
+        else:
+            climate_damage = 8
+            climate_message = "A gentle breeze brings in some more toxic industrial fumes."
+
+        # send this message to everyone inside the object this
+        # script is attached to (likely a room)
+        self.obj.msg_contents(climate_message)
+
+        # Loop through all objects in room.  
+        for list_item in self.obj.contents:
+            if list_item.db.is_human == True:
+                # Check if it's a human and if they have protection from climate damage
+                if list_item.get_climate_protection() == True:
+                    # Let protected humans know they avoided damage.
+                    list_item.msg("Fortunately, you have climate protection and aren't harmed.")
+                else:
+                    # Hurt unprotected humans, and then let them know how much it hurts.
+                    list_item.db.hitpoints -= climate_damage
+                    list_item.msg("You take " + str(climate_damage) + " damage.")
+                    

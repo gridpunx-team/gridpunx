@@ -36,11 +36,15 @@ class Character(DefaultCharacter):
         Set persistent attributes when character is created. 
         Most attributes will actually be set during a separate 
         character creation process, but every player's character
-        will be a human with 128 hitpoints.
+        will be a human with a basic hitpoint system.
         """
         self.db.is_human = True
-        self.db.hitpoints = 128
-
-    def get_hitpoints(self):
-        # Access method to return hitpoints value
-        return self.db.hitpoints
+        self.db.hitpoints = 100
+    
+    def get_climate_protection(self):
+        """
+        Determine if character is protected from climate damage.
+        For now, this just returns False. There is nothing to 
+        protect you! (yet)
+        """
+        return False    
