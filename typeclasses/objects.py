@@ -178,13 +178,77 @@ class Object(DefaultObject):
 """
 
 class RealObject(Object):
-    pass
+    """
+    ------------------------------------------------------------
+    |
+    RealObject
+    ==========
+    A RealObject is the basetype class which establishes that an 
+    object is in the game's physical realm. 
+
+    Currently, this just sets some very basic properties.
+    |
+    ------------------------------------------------------------
+    """
+    def at_object_creation(self):
+        # Real objects exist in the physical realm
+        realm = 'physical'
+
+        # Default not connected to the Grid.
+        grid_connection = False
+        
 
 class RealEnvironment(RealObject):
-    pass
+    """
+    ------------------------------------------------------------
+    |
+    RealEnvironment
+    ===============
+    RealEnvironment objects will inherit everything from the
+    RealObject class. Their intended purpose is to be an object 
+    which can only be interacted with in a very minimal way. They 
+    can be thought of as structures, statues, or very large 
+    objects.
+    |
+    ------------------------------------------------------------
+    """
+    def at_object_creation(self):
+        # Only Builders and higher can '@get' by default
+        self.locks.add('get: perm(Builders)')
 
 class RealItem(RealObject):
-    pass
+    """
+    ------------------------------------------------------------
+    |
+    RealItem
+    ========
+    The RealItem class represents physical objects which can be 
+    manipulated, picked up, stored inside things, and much more. 
+    Objects created using this typeclass are intended to be 
+    picked up or manipulated by characters.
+    |
+    ------------------------------------------------------------
+    """
+    def at_object_creation(self):
+        # This is just a default Evennia object for now.
+        pass
 
 class RealThing(RealObject):
-    pass
+    """
+    ------------------------------------------------------------
+    |
+    RealThing
+    =========
+    RealThings can serve many purposes, but are mainly intended
+    to be more advanced versions of RealItems. They are not 
+    intended to be picked up by players by default, and are 
+    connected to The Grid by default.
+    |
+    ------------------------------------------------------------
+    """
+    def at_object_creation(self):
+        #GridOfThings
+        grid_connection = True
+
+        # Only Builders and higher can '@get' by default
+        self.locks.add('get: perm(Builders)')
