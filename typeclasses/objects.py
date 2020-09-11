@@ -12,6 +12,13 @@ inheritance.
 """
 from evennia import DefaultObject
 
+"""
+================================================================
+==
+== Default Evennia Object
+==
+================================================================
+"""
 
 class Object(DefaultObject):
     """
@@ -159,4 +166,25 @@ class Object(DefaultObject):
 
      """
 
+    pass
+
+
+"""
+================================================================
+==
+== Reality - Objects in the physical realm.
+==
+================================================================
+"""
+
+class RealObject(Object):
+    pass
+
+class RealEnvironment(RealObject):
+    pass
+
+class RealItem(RealObject):
+    pass
+
+class RealThing(RealObject):
     pass
