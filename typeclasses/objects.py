@@ -192,10 +192,10 @@ class RealObject(Object):
     """
     def at_object_creation(self):
         # Real objects exist in the physical realm
-        realm = 'physical'
+        self.db.realm = 'physical'
 
-        # Default not connected to the Grid.
-        grid_connection = False
+        # By default not connected to the Grid, but any object should have the ability to change that.
+        self.db.grid_connection = False
         
 
 class RealEnvironment(RealObject):
@@ -229,9 +229,8 @@ class RealItem(RealObject):
     |
     ------------------------------------------------------------
     """
-    def at_object_creation(self):
-        # This is just a default Evennia object for now.
-        pass
+    # This is just a default physical object (RealObject) for now.
+    pass
 
 class RealThing(RealObject):
     """
@@ -248,7 +247,7 @@ class RealThing(RealObject):
     """
     def at_object_creation(self):
         #GridOfThings
-        grid_connection = True
+        self.db.grid_connection = True
 
         # Only Builders and higher can '@get' by default
         self.locks.add('get: perm(Builders)')
