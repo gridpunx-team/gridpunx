@@ -1,5 +1,6 @@
 """
-Scripts
+Evennnia Details for Scripts
+============================
 
 Scripts are powerful jacks-of-all-trades. They have no in-game
 existence and can be used to represent persistent game systems in some
@@ -15,9 +16,17 @@ just overloads its hooks to have it perform its function.
 from evennia import DefaultScript
 import random
 
+# ==============================================================
+# ==
+# == Default Evennia Script
+# ==
+# ==============================================================
+
 
 class Script(DefaultScript):
     """
+    Evennnia Details
+    ================
     A script type is customized by redefining some or all of its hook
     methods and variables.
 
@@ -89,8 +98,16 @@ class Script(DefaultScript):
       at_server_shutdown() - called at a full server shutdown.
 
     """
-
+    # This currently has no customized options for gridpunx
     pass
+
+
+# ==============================================================
+# ==
+# == Real Room Scripts - Meant to be attached to rooms in the
+# == pysical realm
+# ==
+# ==============================================================
 
 class HarshClimate(Script): 
     """
@@ -119,10 +136,10 @@ class HarshClimate(Script):
             climate_damage = 8
             climate_message = "A gentle breeze brings in some more toxic industrial fumes."
 
-        # send this message to everyone inside the object this
-        # script is attached to (likely a room)
+        # send the climate_message string to everyone inside the room
         self.obj.msg_contents(climate_message)
 
+        # Damage all unprotected humans in the room:
         # Loop through all objects in room.  
         for list_item in self.obj.contents:
             if list_item.db.is_human == True:

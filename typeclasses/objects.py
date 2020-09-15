@@ -12,13 +12,11 @@ inheritance.
 """
 from evennia import DefaultObject
 
-"""
-================================================================
-==
-== Default Evennia Object
-==
-================================================================
-"""
+# ==============================================================
+# ==
+# == Default Evennia Object
+# ==
+# ==============================================================
 
 class Object(DefaultObject):
     """
@@ -169,26 +167,18 @@ class Object(DefaultObject):
     pass
 
 
-"""
-================================================================
-==
-== Reality - Objects in the physical realm.
-==
-================================================================
-"""
+# ==============================================================
+# ==
+# == Real Objects
+# ==
+# ==============================================================
 
 class RealObject(Object):
     """
-    ------------------------------------------------------------
-    |
-    RealObject
-    ==========
     A RealObject is the basetype class which establishes that an 
     object is in the game's physical realm. 
 
     Currently, this just sets some very basic properties.
-    |
-    ------------------------------------------------------------
     """
     def at_object_creation(self):
         # Real objects exist in the physical realm
@@ -200,17 +190,11 @@ class RealObject(Object):
 
 class RealEnvironment(RealObject):
     """
-    ------------------------------------------------------------
-    |
-    RealEnvironment
-    ===============
     RealEnvironment objects will inherit everything from the
     RealObject class. Their intended purpose is to be an object 
     which can only be interacted with in a very minimal way. They 
     can be thought of as structures, statues, or very large 
     objects.
-    |
-    ------------------------------------------------------------
     """
     def at_object_creation(self):
         # Only Builders and higher can '@get' by default
@@ -218,32 +202,19 @@ class RealEnvironment(RealObject):
 
 class RealItem(RealObject):
     """
-    ------------------------------------------------------------
-    |
-    RealItem
-    ========
     The RealItem class represents physical objects which can be 
     manipulated, picked up, stored inside things, and much more. 
     Objects created using this typeclass are intended to be 
     picked up or manipulated by characters.
-    |
-    ------------------------------------------------------------
     """
     # This is just a default physical object (RealObject) for now.
     pass
 
 class RealThing(RealObject):
     """
-    ------------------------------------------------------------
-    |
-    RealThing
-    =========
-    RealThings can serve many purposes, but are mainly intended
-    to be more advanced versions of RealItems. They are not 
-    intended to be picked up by players by default, and are 
-    connected to The Grid by default.
-    |
-    ------------------------------------------------------------
+    RealThing objects can serve many purposes, but are mainly 
+    intended to be more advanced versions of RealItems that are 
+    connected to The Grid.
     """
     def at_object_creation(self):
         #GridOfThings

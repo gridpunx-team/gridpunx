@@ -7,13 +7,11 @@ Rooms are simple containers that has no location of their own.
 
 from evennia import DefaultRoom
 
-"""
-================================================================
-==
-== 1. Default Room 
-==
-================================================================
-"""
+# ==============================================================
+# ==
+# == Default Evennia Room
+# ==
+# ==============================================================
 
 class Room(DefaultRoom):
     """
@@ -35,25 +33,17 @@ class Room(DefaultRoom):
     pass
 
 
-
-"""
-================================================================
-==
-== 2. Reality: Room types in the physical realm
-==
-================================================================
-"""
-
+# ==============================================================
+# ==
+# == Real Rooms
+# ==
+# ==============================================================
 
 class RealRoom(Room):
     """
-    ------------------------------------------------------------
-    |
     This is the basic room type for the physical realm. It is 
     currently just used as a means of establishing a hierarchy of 
-    classes to separate the physical and digital realms. 
-    |
-    ------------------------------------------------------------
+    classes to separate the physical and digital realms.
     """
     pass
 
@@ -61,14 +51,10 @@ class RealRoom(Room):
 
 class RealInside(RealRoom):
     """
-    ------------------------------------------------------------
-    | 
     Rooms that are "inside" a structure in the physical realm. These
     could also have varying levels of safety from the harsh conditions 
     of RealOutside rooms and would have special properties, like 
     access control or a connection to The Global Grid.
-    |
-    ------------------------------------------------------------
     """
     pass
 
@@ -76,14 +62,10 @@ class RealInside(RealRoom):
 
 class RealOutside(RealRoom):
     """
-    ----------------------------------------------------------------
-    |
     Rooms that are "outside" of structures in the physical realm 
     will have harsh conditions which harm the player -- accomplished 
     via a Script object (based on the Weather script from Evennia's
     documentation (/path/to/your/evennia/docs/source/Scripts.md).
-    |
-    ----------------------------------------------------------------
     """
     def at_object_creation(self):
         # Add the HarshClimate script these rooms
