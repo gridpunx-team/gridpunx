@@ -206,7 +206,7 @@ class RealEnvironment(RealObject):
     objects.
     """
     def at_object_creation(self):
-        # Values to used by get_condition() function
+        # Values used by the get_condition() function
         self.db.hitpoints = 256
         self.db.damage = 0
         
@@ -221,7 +221,7 @@ class RealItem(RealObject):
     picked up or manipulated by characters.
     """
     def at_object_creation(self):
-        # Values to used by get_condition() function
+        # Values used by the get_condition() function
         self.db.hitpoints = 16
         self.db.damage = 0
 
@@ -232,12 +232,9 @@ class RealThing(RealObject):
     connected to The Grid.
     """
     def at_object_creation(self):
-        # Values to used by get_condition() function
+        # Values used by the get_condition() function
         self.db.hitpoints = 64
         self.db.damage = 0
 
         #GridOfThings
         self.db.grid_connection = True
-
-        # Only Builders and higher can '@get' by default
-        self.locks.add('get: perm(Builders)')
