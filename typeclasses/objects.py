@@ -175,18 +175,27 @@ class Object(DefaultObject):
 
 class RealObject(Object):
     """
-    A RealObject is the basetype class which establishes that an 
-    object is in the game's physical realm. 
+    A RealObject is the basetype class which establishes functions 
+    that are useful to have on any object in the physical realm.
 
-    Currently, this just sets some very basic properties.
+    Note that no at_item_creation() hook is defined, since most 
+    objects should actually use more specific typeclasses when they
+    are created.
     """
-    def at_object_creation(self):
-        # Real objects exist in the physical realm
-        self.db.realm = 'physical'
 
-        # By default not connected to the Grid, but any object should have the ability to change that.
-        self.db.grid_connection = False
-        
+    #    All real objects will have a 'condition', which is a perenctage
+    # based on how many hitpoints the object is assigned and how much
+    # damage the object has taken rounded to the nearest integer.
+    def get_condition(self):
+        """
+        The get_condition function returns a value that represents
+        an objects condition as a percentage value from 0-100.
+        """
+        if self.db.hitpoints == None or self.db.damage == None:
+            condition = 100
+        else:
+            condition = round(((self.db.hitpoints - self.db.damage) / self.db.hitpoints) * 100)
+        return condition
 
 class RealEnvironment(RealObject):
     """
@@ -197,6 +206,10 @@ class RealEnvironment(RealObject):
     objects.
     """
     def at_object_creation(self):
+        # Values to used by get_condition() function
+        self.db.hitpoints = 256
+        self.db.damage = 0
+        
         # Only Builders and higher can '@get' by default
         self.locks.add('get: perm(Builders)')
 
@@ -207,8 +220,10 @@ class RealItem(RealObject):
     Objects created using this typeclass are intended to be 
     picked up or manipulated by characters.
     """
-    # This is just a default physical object (RealObject) for now.
-    pass
+    def at_object_creation(self):
+        # Values to used by get_condition() function
+        self.db.hitpoints = 16
+        self.db.damage = 0
 
 class RealThing(RealObject):
     """
@@ -217,6 +232,10 @@ class RealThing(RealObject):
     connected to The Grid.
     """
     def at_object_creation(self):
+        # Values to used by get_condition() function
+        self.db.hitpoints = 64
+        self.db.damage = 0
+
         #GridOfThings
         self.db.grid_connection = True
 
