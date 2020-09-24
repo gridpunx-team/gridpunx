@@ -32,7 +32,7 @@ from typeclasses.objects import RealObject
 # ==
 # ==============================================================
 
-def dialogue_start(caller):
+def dialogue_start(caller, raw_string, **kwargs):
     text = "'I don't have anything to say.'"
 
     options = (
@@ -42,7 +42,7 @@ def dialogue_start(caller):
     return text, options
 
 
-def END(caller):
+def END(caller, raw_string, **kwargs):
     text = "'Goodbye.'"
 
     options = ()

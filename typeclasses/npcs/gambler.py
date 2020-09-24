@@ -16,7 +16,7 @@ from typeclasses.npc import RealTalkingNPC
 # ==
 # ==============================================================
 
-def dialogue_start(caller):
+def dialogue_start(caller, raw_string, **kwargs):
     text = "'Wanna play a game? You could win big. REAL big! Whadduya say, punk?'"
 
     options = (
@@ -27,7 +27,7 @@ def dialogue_start(caller):
 
 # This is obviously not complete yet...
 
-def END(caller):
+def END(caller, raw_string, **kwargs):
     text = "'Fine. How 'bout you just step back and let someone else take a chance, then?'"
 
     options = ()
