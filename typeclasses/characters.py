@@ -34,12 +34,14 @@ class Character(DefaultCharacter):
     def at_object_creation(self):
         """
         Set persistent attributes when character is created. 
-        Most attributes will actually be set during a separate 
-        character creation process, but every player's character
-        will be a human with a basic hitpoint system.
+        This is all temporary until a better character system
+        is defined.
         """
         self.db.is_human = True
         self.db.hitpoints = 100
+        self.db.gridbits = 16
+
+
     
     def get_climate_protection(self):
         """
