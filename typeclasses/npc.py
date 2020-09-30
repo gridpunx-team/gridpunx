@@ -146,6 +146,6 @@ class RealTalkingNPC(RealObject):
         # Assign the commandset containing the talk command
         self.cmdset.add_default(TalkingCmdSet, permanent=True)
 
-        # Only Builders and higher can '@get' an NPC by default
-        self.locks.add('get: perm(Builders)')
-
+        # NPCs can receive items via the 'give' command, and
+        # only Builders and higher can '@get' an NPC by default
+        self.locks.add('receive:true(); get: perm(Builders)')

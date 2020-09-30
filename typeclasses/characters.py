@@ -41,8 +41,10 @@ class Character(DefaultCharacter):
         self.db.hitpoints = 100
         self.db.gridbits = 16
 
+        # Characters can receive items via the 'give' command
+        self.locks.add('receive:true()')
 
-    
+
     def get_climate_protection(self):
         """
         Determine if character is protected from climate damage.

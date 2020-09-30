@@ -238,3 +238,17 @@ class RealThing(RealObject):
 
         #GridOfThings
         self.db.grid_connection = True
+
+class RealContainer(RealObject):
+    """
+    RealContainers are meant to hold stuff. Eventually, this 
+    class will have special logic for how these objects are 
+    allowed to be interacted with.
+    """
+    def at_object_creation(self):
+        # Values used by the get_condition() function
+        self.db.hitpoints = 32
+        self.db.damage = 0
+
+        # Containers can receive items via the 'give' command
+        self.locks.add('receive:true()')
