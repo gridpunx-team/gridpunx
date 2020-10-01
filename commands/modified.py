@@ -20,25 +20,36 @@ See LICENSE file for full gridpunx license details.
 
 """
 
-
-# Used by modified default commands.
+# Used by default commands in source code.
 from django.conf import settings
 from evennia.utils import utils
 
+# Also used by default commands.
 COMMAND_DEFAULT_CLASS = utils.class_from_module(settings.COMMAND_DEFAULT_CLASS)
+
+
+# ==============================================================
+# ==
+# == CmdGive - The '@give' command. Modified to for gridpunx to 
+# == check a 'receive' access_type lock.
+# ==
+# == From Evennia source file: 
+# == evennia/evennia/commands/default/general.py
+# ==
+# ==============================================================
 
 class CmdGive(COMMAND_DEFAULT_CLASS):
     """
     give away something to someone
     Usage:
-      give <inventory obj> <to||=> <target>
-    Gives an items from your inventory to another character,
-    placing it in their inventory.
+      give <inventory obj> <-to||=> <target>
+    Gives an item from your inventory to another character, NPC,
+    or container.
     """
     
-
+    
     key = "give"
-    rhs_split = ("=", " to ")  # Prefer = delimiter, but allow " to " usage.
+    rhs_split = ("=", " -to ")  # Prefer '=' delimiter, but allow '-to' usage.
     locks = "cmd:all()"
     arg_regex = r"\s|$"
 
@@ -47,7 +58,7 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
 
         caller = self.caller
         if not self.args or not self.rhs:
-            caller.msg("Usage: give <inventory object> = <target>")
+            caller.msg("Usage: give <inventory object> -to <target>")
             return
         to_give = caller.search(
             self.lhs,
@@ -86,3 +97,103 @@ class CmdGive(COMMAND_DEFAULT_CLASS):
             # Call the object script's at_give() method.
             to_give.at_give(caller, target)
 
+
+# ==============================================================
+# ==
+# == CmdGet - The '@get' command. Modified for gridpunx to allow
+# == specifying a target object which contains other objects.
+# ==
+# == From Evennia source file: 
+# == evennia/evennia/commands/default/general.py
+# ==
+# ==============================================================
+
+class CmdGet(COMMAND_DEFAULT_CLASS):
+    """
+    pick up something
+
+    Usage:
+      get <object> [=||-from <container>]
+
+    Picks up an object and puts it in your inventory. Specify
+    '-from <container>' or '= <container>' to get an item from a
+    container. If no container is specified, the target defaults
+    to 'here'
+    """
+    
+    key = "get"
+    aliases = "grab"
+    locks = "cmd:all()"
+    arg_regex = r"\s|$"
+
+    # MODIFICATION (start)
+    #
+    # Parse args a similar way to how '@give' works
+    rhs_split = ("=", " -from ")  # Prefer '=' delimiter, but allow '-from' usage.
+    # MODIFICATION (end)
+
+    def func(self):
+        """implements the command."""
+
+        caller = self.caller
+
+        # MODIFICATION (start)
+        # Show simple help if there are no args
+        if not self.args:
+            caller.msg("Usage: get <object> [= <target>]")
+            return
+
+        if not self.rhs:
+            # Set target to 'here' if not specified.
+            target = caller.location
+        else:
+            target = caller.search(self.rhs, location=caller.location)
+
+        if not target:
+            return
+        if not (str(target.typename) == "RealContainer" or target.location == None ):
+            # Only allowed on container objects (verified by typename) and rooms (verified by location -- only rooms have a 'None' location)
+            caller.msg("You can only get objects from containers and the ground.")
+            return
+
+        obj = caller.search(
+            self.lhs,
+            location=target,
+            nofound_string="There's no %s in here." % self.lhs,
+            multimatch_string="There's more than one %s:" % self.lhs,
+        )
+        # MODIFICATION (end)
+
+        # Unused original code:
+        #
+        #if not self.args:
+        #    caller.msg("Get what?")
+        #    return
+        # obj = caller.search(self.args, location=caller.location)
+        
+        if not obj:
+            return
+        if caller == obj:
+            caller.msg("You can't get yourself.")
+            return
+        if not obj.access(caller, "get"):
+            if obj.db.get_err_msg:
+                caller.msg(obj.db.get_err_msg)
+            else:
+                caller.msg("You can't get that.")
+            return
+
+        # calling at_before_get hook method
+        if not obj.at_before_get(caller):
+            return
+        
+        success = obj.move_to(caller, quiet=True)
+        if not success:
+            caller.msg("This can't be picked up.")
+        else:
+            caller.msg("You pick up %s." % obj.name)
+            caller.location.msg_contents(
+                "%s picks up %s." % (caller.name, obj.name), exclude=caller
+            )
+            # calling at_get hook method
+            obj.at_get(caller)

@@ -16,7 +16,7 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 
 from evennia import default_cmds
 from commands.modified import CmdGive as CustomCmdGive
-
+from commands.modified import CmdGet as CustomCmdGet
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -39,6 +39,10 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Override the default 'give' command to a customized version
         # which implements a check for a 'receive' access type.
         self.add(CustomCmdGive())
+
+        # Override the default 'et' command to a customized version
+        # which allows targeting a container.
+        self.add(CustomCmdGet())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):
