@@ -120,8 +120,12 @@ class HarshClimate(Script):
     def at_script_creation(self):
         self.key = "harsh_climate"
         self.desc = "Harms an unprotected player at regular intervals."
-        self.interval = 60 * 2  # every 2 minutes
         self.persistent = True  # will survive reload
+        self.start_delay = True # Delay on first start.
+
+    def at_start(self):
+        # 1-2 minutes. Changes at server restart.
+        self.interval = random.randint(60,120)
 
     def at_repeat(self):
         "called every self.interval seconds."        
@@ -151,4 +155,3 @@ class HarshClimate(Script):
                     # Hurt unprotected humans, and then let them know how much it hurts.
                     list_item.db.hitpoints -= climate_damage
                     list_item.msg("You take " + str(climate_damage) + " damage.")
-                    
