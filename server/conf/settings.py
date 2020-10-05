@@ -35,6 +35,15 @@ from evennia.settings_default import *
 SERVERNAME = "gridpunx_default"
 
 
+# ==============================================================
+# ==
+# == Time settings for gridpunx
+# ==
+# ==============================================================
+
+# 1 game hour is 15 minutes in real life
+TIME_FACTOR = 4.0
+
 ######################################################################
 # Settings given in secret_settings.py override those in this file.
 ######################################################################
