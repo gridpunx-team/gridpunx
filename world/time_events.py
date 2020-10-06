@@ -9,7 +9,7 @@ The best way to do this is by logging into the game with
 Developer or superuser privileges and running the following
 command:
 
-@py from world import time_events; time_events.start_[event-name]
+@py from world import time_events; time_events.start_[event-name]()
 
 """
 
@@ -28,12 +28,12 @@ def start_sunrise_event():
     script.key = "sunrise"
 
 def at_sunset():
-    """When the sun rises, display a message in every RealOutside room."""
+    """When the sun is setting, display a message in every RealOutside room."""
     # Browse all outside rooms
     for room in RealOutside.objects.all():
         room.msg_contents("The sun is setting.")
 
 def start_sunset_event():
     """Schedule an sunrise event to happen every day at 7:30 PM."""
-    script = gametime.schedule(at_sunrise, repeat=True, hour=19, min=30, sec=0)
+    script = gametime.schedule(at_sunset, repeat=True, hour=19, min=30, sec=0)
     script.key = "sunset"
