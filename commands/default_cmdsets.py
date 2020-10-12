@@ -14,9 +14,15 @@ own cmdsets by inheriting from them or directly from `evennia.CmdSet`.
 
 """
 
+# Default Commands
 from evennia import default_cmds
+
+# Modified defaults
 from commands.modified import CmdGive as CustomCmdGive
 from commands.modified import CmdGet as CustomCmdGet
+
+# Custom general commands
+from commands.command import CmdUse
 
 class CharacterCmdSet(default_cmds.CharacterCmdSet):
     """
@@ -43,6 +49,9 @@ class CharacterCmdSet(default_cmds.CharacterCmdSet):
         # Override the default 'et' command to a customized version
         # which allows targeting a container.
         self.add(CustomCmdGet())
+
+        # Add the custom 'use' command
+        self.add(CmdUse())
 
 
 class AccountCmdSet(default_cmds.AccountCmdSet):

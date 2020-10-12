@@ -197,6 +197,16 @@ class RealObject(Object):
             condition = round(((self.db.hitpoints - self.db.damage) / self.db.hitpoints) * 100)
         return condition
 
+    def at_use(self, user, with_obj, **kwargs):
+        """
+        The at_use hook method allows characters to use other objects
+        with this object via the '@use' command and specifying
+        this object as a target.
+        """
+        # Nothing happens by default.
+        user.msg('Nothing happens.')
+        
+
 class RealEnvironment(RealObject):
     """
     RealEnvironment objects will inherit everything from the

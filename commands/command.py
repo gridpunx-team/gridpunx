@@ -6,6 +6,7 @@ Commands describe the input the account can do to the game.
 """
 
 from evennia import Command as BaseCommand
+from evennia import default_cmds
 
 # from evennia import default_cmds
 
@@ -186,3 +187,73 @@ class Command(BaseCommand):
 #                 self.character = self.caller.get_puppet(self.session)
 #             else:
 #                 self.character = None
+
+class CmdUse(default_cmds.MuxCommand):
+    """
+    Allows a character to use an object either by itself or with 
+    another object they are carrying. Exactly what happens will 
+    depend on the object and/or target specified.
+
+    Usage:
+    use <target object> [(=||-with) <inventory object>]
+    """
+
+    key = "use"
+    locks = "cmd:all()"
+    arg_regex = r"\s|$"
+
+    # Set the rhs_split property.
+    rhs_split = ("=", " -with ")  # Prefer '=' delimiter, but allow '-with' usage.
+
+    def func(self):
+        """
+        Implementation of the 'use' command for gridpunx. Essentially, all this
+        command does is call a custom method on the target object.
+        """
+        
+        caller = self.caller
+
+        # If no arguments are given, display simple usage info.
+        if not self.args:
+            caller.msg("Usage: use <target> [(=||-with) <inventory object>]")
+            return
+
+        # Search for the specified target object.
+        to_use = caller.search(self.lhs)
+
+        if not to_use:
+            return
+
+        try:
+            if not self.rhs:
+                # -with is NOT specified.
+                
+                # Call the at_use() method of specified object.
+                to_use.at_use(caller, None)
+
+            else:
+                # -with is specified
+                
+                # Search caller's inventory for specified 'with' object.
+                with_obj = caller.search(
+                    self.rhs,
+                    location=caller,
+                    nofound_string="You aren't carrying %s." % self.rhs,
+                    multimatch_string="You carry more than one %s:" % self.rhs,
+                )
+
+                if not with_obj:
+                    return
+                else:
+                    # If with_obj exists, pass it to the at_use() method.
+                    to_use.at_use(caller, with_obj)
+
+        except AttributeError as err:
+            # Handle errors from objects without an at_use() method.
+
+            if "'at_use'" in str(err):
+                caller.msg("You can't use that.")
+            else:
+                # Re-raise all unaccounted AttributeError messages
+                raise err
+        
