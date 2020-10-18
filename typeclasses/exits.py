@@ -91,8 +91,6 @@ class AuthenticatedExit(DefaultExit):
         # than simply calling the object to traverse.
         self.locks.add(self.db.default_traverse)
 
-        return
-
 
     def add_granted_key(self, token_key, **kwargs):
         # Hash the given key.
@@ -100,7 +98,6 @@ class AuthenticatedExit(DefaultExit):
 
         # Add the token hash to the locked-down granted_keys attribute.
         self.db.granted_keys.append(token_hash)
-        return
 
 
     def add_token_to_lock(self, token_dbref, **kwargs):
@@ -117,7 +114,6 @@ class AuthenticatedExit(DefaultExit):
 
         # Assign the new lockstring, overwriting the old one.
         self.locks.add(lockstring)
-        return
         
 
     def at_use(self, user, with_obj, **kwargs):
@@ -179,6 +175,5 @@ class AuthenticatedExit(DefaultExit):
         if message_string == 'Access Granted!':
             self.add_token_to_lock(with_obj.dbref)
             self.at_traverse(user, self.destination)
-        return
 
     
