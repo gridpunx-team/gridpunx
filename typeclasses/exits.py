@@ -128,6 +128,11 @@ class AuthenticatedExit(DefaultExit):
         # Get the current 'use_mode' attribute of the object.
         use_mode = self.db.use_mode
 
+        # If no object was specifed, print the message and return.
+        if (with_obj == None):
+            user.msg(message_string)
+            return
+
         # Only using with objects of the 'IdentityToken' typeclass will do anything.
         if (str(with_obj.typename) == "IdentityToken"):
             # Let user know they are using the correct type of object.
