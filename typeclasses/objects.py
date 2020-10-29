@@ -10,7 +10,14 @@ the other types, you can do so by adding this as a multiple
 inheritance.
 
 """
+# Evennia's DefaultObject
 from evennia import DefaultObject
+
+# Used by the RealContainer class
+from collections import defaultdict
+from evennia.utils.utils import list_to_string
+
+
 
 # ==============================================================
 # ==
@@ -262,3 +269,69 @@ class RealContainer(RealObject):
 
         # Containers can receive items via the 'give' command
         self.locks.add('receive:true()')
+
+        # Set the container's 'is_open' attribute to False
+        self.db.is_open = False
+
+    def return_appearance(self, looker, **kwargs):
+        """
+        Reimplementation of the return_appearance hook from Evennia's
+        default object. It is modified to only return the object's 
+        contents if it has an attribute of 'is_open' set to 'True'
+
+        Details from Evennia
+        ====================
+
+        This formats a description. It is the hook a 'look' command
+        should call.
+
+        Args:
+            looker (Object): Object doing the looking.
+            **kwargs (dict): Arbitrary, optional arguments for users
+                overriding the call (unused by default).
+        """
+        if not looker:
+            return ""
+
+        if (self.db.is_open == True) or (looker.location == self):
+            # Only get visible objects if container is open or looker is inside.
+            visible = (con for con in self.contents if con != looker and con.access(looker, "view"))
+        else:
+            visible = []
+
+        exits, users, things = [], [], defaultdict(list)
+        for con in visible:
+            key = con.get_display_name(looker)
+            if con.destination:
+                exits.append(key)
+            elif con.has_account:
+                users.append("|c%s|n" % key)
+            else:
+                # things can be pluralized
+                things[key].append(con)
+        # get description, build string
+        string = "|c%s|n\n" % self.get_display_name(looker)
+        desc = self.db.desc
+        if desc:
+            string += "%s" % desc
+        if self.db.is_open == False:
+            # Inform looker that it can be opened.
+            string += "\n|wIt's closed."
+        if exits:
+            string += "\n|wExits:|n " + list_to_string(exits)
+        if users or things:
+            # handle pluralization of things (never pluralize users)
+            thing_strings = []
+            for key, itemlist in sorted(things.items()):
+                nitem = len(itemlist)
+                if nitem == 1:
+                    key, _ = itemlist[0].get_numbered_name(nitem, looker, key=key)
+                else:
+                    key = [item.get_numbered_name(nitem, looker, key=key)[1] for item in itemlist][
+                        0
+                    ]
+                thing_strings.append(key)
+
+            string += "\n|wInside, you see:|n " + list_to_string(users + thing_strings)
+
+        return string
