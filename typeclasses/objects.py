@@ -258,9 +258,7 @@ class RealThing(RealObject):
 
 class RealContainer(RealObject):
     """
-    RealContainers are meant to hold stuff. Eventually, this 
-    class will have special logic for how these objects are 
-    allowed to be interacted with.
+    RealContainers are meant to hold stuff.
     """
     def at_object_creation(self):
         # Values used by the get_condition() function
@@ -272,6 +270,9 @@ class RealContainer(RealObject):
 
         # Set the container's 'is_open' attribute to False
         self.db.is_open = False
+
+        # Set the container's use mode to 'open'
+        self.db.use_mode = "open"
 
     def return_appearance(self, looker, **kwargs):
         """
@@ -335,3 +336,38 @@ class RealContainer(RealObject):
             string += "\n|wInside, you see:|n " + list_to_string(users + thing_strings)
 
         return string
+
+
+    def at_use(self, user, with_obj, **kwargs):
+        """
+        The at_use method allows characters to use other objects
+        with this object via the '@use' command and specifying
+        this object as a target.
+        """
+        # Nothing happens by default.
+        message_string = "Nothing happens."
+
+        # Get the current 'use_mode' attribute of the object.
+        use_mode = self.db.use_mode
+
+        if use_mode == "unlocked":
+            # Simple 'open' mode -- open it if it is closed and vice versa
+            if self.db.is_open == False:
+                # Open the container if it is closed
+                self.db.is_open = True
+                message_string = "You open %s" % self.key
+            elif self.db.is_open == True:
+                # Close the container if it is open
+                self.db.is_open = False
+                message_string = "You close %s" % self.key
+            else:
+                pass
+
+        elif use_mode == "sealed":
+            # Cannot be opened normally.
+            user.msg("There doesn't seem to be a way to open that without breaking it.")
+
+
+        # Send user the message.
+        user.msg(message_string)
+            
