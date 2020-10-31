@@ -272,7 +272,7 @@ class RealContainer(RealObject):
         self.db.is_open = False
 
         # Set the container's use mode to 'open'
-        self.db.use_mode = "open"
+        self.db.use_mode = "unlocked"
 
     def return_appearance(self, looker, **kwargs):
         """
