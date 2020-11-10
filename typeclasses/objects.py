@@ -16,6 +16,7 @@ from evennia import DefaultObject
 # Used by the RealContainer class
 from collections import defaultdict
 from evennia.utils.utils import list_to_string
+from typeclasses import auth_common
 
 
 
@@ -258,21 +259,120 @@ class RealThing(RealObject):
 
 class RealContainer(RealObject):
     """
-    RealContainers are meant to hold stuff.
+    RealContainers are meant to hold stuff, and running an '@use' command on them
+    will open and close them depending on their use_mode attribute. A closed container
+    will not return its contents when a player issues an '@look' command on it.
+    
+    Implemented use_mode options:
+    + unlocked -- just using the container will open it
+    + token -- container will only open based on the auth_mode attribute.
+
+    Any other value in the use_mode attribute of the container will cause it to be
+    'sealed' and cannot be open via the '@use' command.
     """
     def at_object_creation(self):
-        # Values used by the get_condition() function
+        """
+        Runs when object is first created and when object it updated.
+        """
+        # Used by the get_condition() function
         self.db.hitpoints = 32
         self.db.damage = 0
 
         # Containers can receive items via the 'give' command
         self.locks.add('receive:true()')
 
-        # Set the container's 'is_open' attribute to False
+        # Set the container's 'is_open' attribute to boolean False
         self.db.is_open = False
 
-        # Set the container's use mode to 'open'
+        # Set the container's 'use mode' to 'open'
         self.db.use_mode = "unlocked"
+
+        # Set the container's 'auth_mode' to 'allowing'
+        self.db.auth_mode = "allowing"
+
+        # Set sensitive attribute
+        if self.db.granted_keys == None:
+            self.db.granted_keys = []
+        
+        # Set lockstring for sensitive attribute
+        attr_lockstring = "attrread:perm(Admins);attredit:perm(Admins)"
+
+        # Apply lockstring for sensitive attribute
+        self.attributes.get("granted_keys", return_obj=True).locks.add(attr_lockstring)
+
+
+    def at_open(self):
+        """
+        Swaps the container between an open and close state. Returns
+        a one word string reflecting what it changed to, or a None type
+        object if it didn't do anything.
+        """
+        if self.db.is_open == False:
+            # Open the container if it is closed
+            self.db.is_open = True
+            this_action = "open"
+        elif self.db.is_open == True:
+            # Close the container if it is open
+            self.db.is_open = False
+            this_action = "close"
+        else:
+            this_action = None
+
+        return this_action
+
+
+    def at_use(self, user, with_obj, **kwargs):
+        """
+        The at_use method allows characters to use this object via the 'use' command.
+        """
+        # Nothing happens by default.
+        message_string = "Nothing happens."
+        action = None
+
+        # Get the current 'use_mode' attribute of the object.
+        use_mode = self.db.use_mode
+
+        # Get the current 'auth_mode' attribute of the object.
+        auth_mode = self.db.auth_mode
+
+        # If container is already open, close it regardless of the use_mode.
+        if self.db.is_open == True:
+            action = self.at_open()
+
+        # If container isn't open, then perform an action based on the use_mode attribute
+        elif use_mode == "unlocked":
+            # Anyone can open the container.
+            action = self.at_open()
+
+        elif use_mode == "token":
+            # The container must be used with an object of the IdentityToken class.
+            if 'IdentityToken' in str(with_obj.__class__):
+                # Describe initiating the interaction.
+                user.msg("You hold your identity token up to %s" % self.key)
+
+                # Call the 'use_with_token' function
+                authenticated = auth_common.use_with_token(self, with_obj, auth_mode)
+
+                # Check output of 'use_with_token' function
+                if authenticated == True:
+                    user.msg("Access Granted!")
+                    action = self.at_open()
+                elif authenticated == False:
+                    user.msg("Access Denied!")
+                    action = "cannot open"
+                else:
+                    message_string = "The token reader releases a puff of bluish-gray smoke."
+
+        else:
+            # Container is closed, and the use_mode variable was not defined properly
+            message_string = "There doesn't seem to be a way to open that without breaking it."
+
+        if action:
+            message_string = "You %s %s." % (action, self.key)
+
+        # Send user the message.
+        user.msg(message_string)
+
 
     def return_appearance(self, looker, **kwargs):
         """
@@ -338,36 +438,5 @@ class RealContainer(RealObject):
         return string
 
 
-    def at_use(self, user, with_obj, **kwargs):
-        """
-        The at_use method allows characters to use other objects
-        with this object via the '@use' command and specifying
-        this object as a target.
-        """
-        # Nothing happens by default.
-        message_string = "Nothing happens."
-
-        # Get the current 'use_mode' attribute of the object.
-        use_mode = self.db.use_mode
-
-        if use_mode == "unlocked":
-            # Simple 'open' mode -- open it if it is closed and vice versa
-            if self.db.is_open == False:
-                # Open the container if it is closed
-                self.db.is_open = True
-                message_string = "You open %s" % self.key
-            elif self.db.is_open == True:
-                # Close the container if it is open
-                self.db.is_open = False
-                message_string = "You close %s" % self.key
-            else:
-                pass
-
-        elif use_mode == "sealed":
-            # Cannot be opened normally.
-            user.msg("There doesn't seem to be a way to open that without breaking it.")
-
-
-        # Send user the message.
-        user.msg(message_string)
+    
             
